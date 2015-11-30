@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:mongo="http://www.springframework.org/schema/data/mongo"
+	xmlns:task="http://www.springframework.org/schema/task" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:cache="http://www.springframework.org/schema/cache" 
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd
+        http://www.springframework.org/schema/data/mongo 
+        http://www.springframework.org/schema/data/mongo/spring-mongo-1.0.xsd
+        http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd"
+          >
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing 
+		infrastructure -->
+
+	<mvc:annotation-driven />
+	<context:component-scan base-package="com.pt.spring4junit" />
+	<context:load-time-weaver />
+	<task:annotation-driven/>
+	<mvc:resources cache-period="604800" mapping="/resources/**"
+		location="/resources/" />
+	<bean
+		class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+		<property name="mediaTypes">
+			<map>
+				<entry key="json" value="application/json" />
+				<entry key="html" value="text/html" />
+			</map>
+		</property>
+		<property name="viewResolvers">
+			<list>
+				<!-- jsp views -->
+				<bean class="org.springframework.web.servlet.view.BeanNameViewResolver" />
+				<bean
+					class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+					<property name="viewClass"
+						value="org.springframework.web.servlet.view.JstlView" />
+					<property name="prefix" value="/WEB-INF/jsp/" />
+					<property name="suffix" value=".jsp" />
+				</bean>
+
+			</list>
+		</property>
+		<property name="defaultViews">
+			<list>
+				<!-- JSON View -->
+				<bean
+					class="org.springframework.web.servlet.view.json.MappingJackson2JsonView" />
+			</list>
+		</property>
+	</bean>
+
+	<!-- General app properties -->
+	<bean id="generalPropSource"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath*:application.properties</value>
+				<!-- file://${CU.HOME}/Alesco -->
+			</list>
+		</property>
+	</bean>
+
+	<!-- App properties -->
+	<bean id="appPropSource"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="locations">
+			<list>
+				<value>classpath*:application.properties</value>
+				<value>classpath*:status.properties</value>
+				<!-- file://${CU.HOME}/Alesco -->
+			</list>
+		</property>
+	</bean>
+
+	<!-- Mango conection -->
+	<bean id="mongo" class="org.springframework.data.mongodb.core.MongoFactoryBean">
+		<property name="host" value="${MongoDB.hostName}" />
+		<property name="port" value="${MongoDB.port}" />
+	</bean>
+
+	<!-- MongoTemplate for connecting and quering the documents in the database -->
+	<bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+		<constructor-arg name="mongo" ref="mongo" />
+		<constructor-arg name="databaseName" value="${MongoDB.dbName}" />
+	</bean>
+
+	<mongo:repositories base-package="com.alesco.repository" />
+
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="${email.host}" />
+		<property name="port" value="${email.port}" />
+		<property name="username" value="${email.usename}" />
+		<property name="password" value="${email.password}" />
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.transport.protocol">${email.transport.protocol}</prop>
+				<prop key="mail.smtp.auth">${email.smtp.auth}</prop>
+				<prop key="mail.smtp.starttls.enable">${email.smtp.starttls.enable}</prop>
+				<prop key="mail.debug">${email.debug}</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- Global thread pool -->
+	<bean id="globalThreadPool" class="org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean">
+		<property name="corePoolSize" value="15" />
+		<property name="maxPoolSize" value="25" />
+		<property name="queueCapacity" value="1000" />
+	</bean>
+	
+	<!-- Process cache annotations -->
+	<!-- <cache:annotation-driven cache-manager="cacheManager" />
+ 
+	<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+    	<property name="cacheManager" ref="ehcache"/>
+	</bean>
+	<bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+    	<property name="configLocation" value="/WEB-INF/ehcache.xml"/>
+    	<property name="shared" value="true"/>
+	</bean> --> 
+
+	 <!-- <mvc:interceptors> 
+	 	<bean class="com.alesco.security.ProcessInterceptor" />
+        <mvc:interceptor>
+            <mvc:mapping path="/**" />
+            <mvc:exclude-mapping path="/authentication/**"/>
+            <mvc:exclude-mapping path="/resources/**"/>
+            <bean class="com.alesco.security.SecurityInterceptor" />
+        </mvc:interceptor>
+    </mvc:interceptors> -->
+	
+</beans>
