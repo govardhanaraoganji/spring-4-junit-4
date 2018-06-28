@@ -3,7 +3,6 @@ package com.pt.spring4junit.controller;
 //***************************************************************************************************
 //      Project name                    	: Spring4JunitTest
 //      Class Name                          : AuthenticationController
-//      Author                              : PurpleTalk, Inc.
 //***************************************************************************************************
 //      Class Description: Defines the authentication controller functionality.
 //***************************************************************************************************
